@@ -1,165 +1,213 @@
-# 💰 Finance Dashboard (Django)
+# 💰 Finance Dashboard API (Django REST Framework)
 
-**Finance Dashboard** — Django framework asosida ishlab chiqilgan **shaxsiy moliyaviy boshqaruv tizimi**.  
-Loyiha foydalanuvchilarga **kirim va chiqimlarni boshqarish**, **balansni nazorat qilish**, **kategoriyalar bo‘yicha tahlil qilish** va **ko‘p tilli interfeys**dan foydalanish imkonini beradi.
+Finance Dashboard API — **Django REST Framework (DRF)** asosida ishlab chiqilgan shaxsiy moliyaviy boshqaruv tizimi. Ushbu loyiha frontend (Web / Mobile) ilovalar bilan ishlash uchun **to‘liq REST API** taqdim etadi.
+
+API foydalanuvchilarga kirim–chiqimlarni boshqarish, balansni nazorat qilish, kategoriyalar bo‘yicha tahlil qilish va **JWT token** orqali xavfsiz autentifikatsiyadan foydalanish imkonini beradi.
 
 ---
 
 ## 🎯 Loyiha maqsadi
 
-Bu loyiha foydalanuvchiga:
-- o‘z daromad va xarajatlarini yozib borish
-- qayerga qancha pul ketayotganini ko‘rish
-- real vaqtda balansni bilish
-- profil va parolni boshqarish
-- 3 xil tilda (UZ / RU / EN) ishlash
+Ushbu API foydalanuvchiga:
+
+* daromad va xarajatlarni API orqali qo‘shish
+* qayerga qancha pul ketayotganini ko‘rish
+* real vaqtda balansni hisoblash
+* JWT orqali xavfsiz login qilish
+* profil va parolni boshqarish
+* frontend (React / Vue / Mobile) bilan ishlash
 
 imkonini beradi.
+
 ---
 
 ## ⚙️ O‘rnatish (Installation)
 
 ```bash
-git clone https://github.com/USERNAME/finance-dashboard.git
-cd finance-dashboard
+git clone https://github.com/Jurayev-Marat/8_imtihon_DRF.git
+cd 8_imtihon_DRF
 python -m venv venv
-venv\Scripts\activate
+venv\Scripts\activate  # Linux/Mac: source venv/bin/activate
 pip install -r requirements.txt
 python manage.py migrate
 python manage.py createsuperuser
 python manage.py runserver
+```
 
+Server ishga tushgach:
 
-
-
----
-
-## 🚀 Asosiy imkoniyatlar (Features)
-
-### 👤 Foydalanuvchi (Auth & Profile)
-- Ro‘yxatdan o‘tish (Signup)
-- Login / Logout
-- Parolni tiklash (email orqali tasdiqlash kodi bilan)
-- Yangi parol o‘rnatish
-- Profilni tahrirlash (avatar, ma’lumotlar)
-- Profil ichida parolni almashtirish
-- Django `messages` orqali xabarlar
+```
+http://127.0.0.1:8000/
+```
 
 ---
 
-### 🌍 Ko‘p tilli tizim (Internationalization)
-- 3 ta til qo‘llab-quvvatlanadi:
-  - 🇺🇿 O‘zbek
-  - 🇷🇺 Русский
-  - 🇬🇧 English
-- `{% trans %}`, `gettext`, `gettext_lazy` ishlatilgan
-- `.po / .mo` fayllar orqali tarjima
-- Tilni sahifa ichidan almashtirish
+## 🔐 Authentication (JWT)
+
+API **JWT (JSON Web Token)** asosida ishlaydi.
+
+### 🔑 Auth endpointlar
+
+| Method | Endpoint             | Tavsif                         |
+| ------ | -------------------- | ------------------------------ |
+| POST   | /auth/signup/        | Ro‘yxatdan o‘tish              |
+| POST   | /auth/login/         | Login (access + refresh)       |
+| POST   | /auth/token/refresh/ | Access token yangilash         |
+| POST   | /auth/logout/        | Logout (refresh token bilan)   |
+| POST   | /auth/forgot/        | Parolni tiklash (kod yuborish) |
+| POST   | /auth/reset/         | Yangi parol o‘rnatish          |
+| PUT    | /auth/update/        | Profilni yangilash             |
+
+### 📌 Himoyalangan endpoint chaqirish
+
+```http
+Authorization: Bearer ACCESS_TOKEN
+```
 
 ---
 
-### 💵 Kirim (Income)
-- Kirim kategoriyalarini yaratish
-- Kirim kategoriyasini tahrirlash va o‘chirish
-- Kirim qo‘shish
-- Kirimni tahrirlash
-- Kirimni o‘chirish
-- To‘lov turlari:
-  - Naqd
-  - Karta
-  - Dollar
-- Kirim qo‘shilganda balans avtomatik oshadi
+## 👤 Foydalanuvchi (Users & Profile)
+
+* Signup / Login
+* JWT token orqali autentifikatsiya
+* Profil ma’lumotlarini ko‘rish
+* Profilni tahrirlash (ism, avatar)
+* Parolni almashtirish
 
 ---
 
-### 💸 Chiqim (Expense)
-- Chiqim kategoriyalarini yaratish
-- Chiqim kategoriyasini tahrirlash va o‘chirish
-- Chiqim qo‘shish
-- Chiqimni tahrirlash
-- Chiqimni o‘chirish
-- To‘lov turlari:
-  - Naqd
-  - Karta
-  - Dollar
-- Chiqim qo‘shilganda balansdan avtomatik ayiriladi
+## 💵 Kirim (Income API)
+
+### Endpointlar
+
+| Method | Endpoint               | Tavsif             |
+| ------ | ---------------------- | ------------------ |
+| GET    | /finance/incomes/      | Kirimlar ro‘yxati  |
+| POST   | /finance/incomes/      | Kirim qo‘shish     |
+| GET    | /finance/incomes/{id}/ | Kirim detail       |
+| PUT    | /finance/incomes/{id}/ | Kirimni tahrirlash |
+| DELETE | /finance/incomes/{id}/ | Kirimni o‘chirish  |
+
+* To‘lov turlari: **cash / card / dollar**
+* Kirim qo‘shilganda balans avtomatik oshadi
 
 ---
 
-### 🗂 Kategoriyalar
-- Kirim va chiqim kategoriyalari alohida
-- Har bir kategoriya foydalanuvchiga bog‘langan
-- Har bir kategoriya bo‘yicha jami summa hisoblanadi
-- Kategoriya uchun rasm (icon) qo‘llab-quvvatlanadi
+## 💸 Chiqim (Expense API)
+
+### Endpointlar
+
+| Method | Endpoint                | Tavsif              |
+| ------ | ----------------------- | ------------------- |
+| GET    | /finance/expenses/      | Chiqimlar ro‘yxati  |
+| POST   | /finance/expenses/      | Chiqim qo‘shish     |
+| GET    | /finance/expenses/{id}/ | Chiqim detail       |
+| PUT    | /finance/expenses/{id}/ | Chiqimni tahrirlash |
+| DELETE | /finance/expenses/{id}/ | Chiqimni o‘chirish  |
+
+* Chiqim qo‘shilganda balansdan avtomatik ayiriladi
 
 ---
 
-### 💰 Balans boshqaruvi
-- Har bir foydalanuvchi uchun alohida balans
-- Balans tarkibi:
-  - Naqd
-  - Karta
-  - Dollar
-- Dollar → so‘m kursi bilan hisoblash
-- Balansni qo‘lda yangilash imkoniyati
-- Umumiy balans formulasi:
+## 🗂 Kategoriyalar (Categories API)
 
+* Kirim va chiqim kategoriyalari alohida
+* Har bir kategoriya foydalanuvchiga bog‘langan
+* Kategoriya bo‘yicha jami summa hisoblanadi
 
----
+### Endpointlar
 
-### 📊 Dashboard
-- Kunlik / haftalik / oylik filtr
-- Sana oralig‘i bo‘yicha filtr
-- Kirim va chiqim yig‘indisi
-- Umumiy balans
-- Kategoriyalar bo‘yicha statistika
-- Grafiklar uchun tayyor ma’lumotlar
+| Method | Endpoint                  | Tavsif                |
+| ------ | ------------------------- | --------------------- |
+| GET    | /finance/categories/      | Kategoriyalar         |
+| POST   | /finance/categories/      | Kategoriya qo‘shish   |
+| PUT    | /finance/categories/{id}/ | Kategoriya tahrirlash |
+| DELETE | /finance/categories/{id}/ | Kategoriya o‘chirish  |
 
 ---
 
-### 🎨 Dizayn (UI / UX)
-- Dark mode 🌙 / Light mode ☀️
-- Tema localStorage’da saqlanadi
-- Responsive dizayn (Bootstrap 5)
-- Sidebar navigatsiya
-- Custom CSS dizayn
+## 💰 Balans (Balance Logic)
+
+* Har bir foydalanuvchi uchun alohida balans
+* Balans tarkibi:
+
+  * Naqd
+  * Karta
+  * Dollar
+* Dollar → so‘m kursi bilan hisoblanadi
+* Kirim / Chiqim qo‘shilganda avtomatik yangilanadi
+
+---
+
+## 📊 Dashboard API
+
+* Kun / oy / yil bo‘yicha filtr
+* Sana oralig‘i bo‘yicha filter
+* Jami kirim
+* Jami chiqim
+* Umumiy balans
+* Kategoriya bo‘yicha statistika
+* Grafiklar uchun JSON ma’lumotlar
+
+---
+
+## 📄 API Dokumentatsiya
+
+* Swagger UI:
+
+```
+/swagger/
+```
+
+* ReDoc:
+
+```
+/redoc/
+```
 
 ---
 
 ## 🛠 Texnologiyalar
 
-- **Backend:** Django
-- **Frontend:** HTML, CSS, Bootstrap 5
-- **Database:** SQLite
-- **Auth:** Django Authentication
-- **i18n:** Django Internationalization
-- **Email:** Django `send_mail`
+* **Backend:** Django, Django REST Framework
+* **Auth:** SimpleJWT
+* **Database:** SQLite
+* **Docs:** drf-spectacular (Swagger / ReDoc)
+* **Media:** Django Media Files
 
 ---
 
-## 📂 Template tuzilmasi
+## 📂 Loyiha tuzilmasi
 
-templates/
-├─ accound/
-│ ├─ login.html
-│ ├─ signup.html
-│ ├─ forgot_password.html
-│ ├─ reset_password.html
-│ └─ profile.html
-│
-├─ base.html
-├─ dashboard.html
-├─ category_list.html
-├─ category_detail.html
-├─ add_category.html
-├─ update_category.html
-├─ delete_category.html
-├─ add_income.html
-├─ delete_income.html
-│
-├─ expense_category_list.html
-├─ expense_category_detail.html
-├─ add_expense_category.html
-├─ delete_expense_category.html
-├─ add_expense.html
-└─ delete_expense.html
+```
+conf/
+finance/
+users/
+shared/
+manage.py
+requirements.txt
+README.md
+```
+
+---
+
+## ✅ Xulosa
+
+Finance Dashboard API — bu:
+
+* real loyiha
+* to‘liq REST API
+* JWT bilan himoyalangan
+* frontend va mobile uchun tayyor
+
+🎓 **DRF imtihon / portfolio uchun ideal loyiha**
+
+---
+
+Agar xohlasangiz:
+
+* Postman collection
+* API diagramma
+* React frontend
+
+hammasini ulab beraman.
