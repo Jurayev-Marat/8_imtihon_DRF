@@ -42,7 +42,7 @@ http://127.0.0.1:8000/
 
 ---
 
-## 🔐 Authentication (JWT)
+## 🔐 Authentication (JWT) Ro'yxatdan o'tish uchun kod terminalga keladi 
 
 API **JWT (JSON Web Token)** asosida ishlaydi.
 
